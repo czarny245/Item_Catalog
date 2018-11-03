@@ -1,0 +1,82 @@
+<html>
+    <head>	
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+    <header>
+            <h1>WEBSITE CATALOG</h1>
+
+            <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
+            <script>
+        function change (){
+            if ({{ logged }} == 1) {
+                var button;
+                button = $('.button');
+                button.attr('href', "{{url_for('gdisconnect')}}");
+                button.html("log me out");
+                }
+        }
+        change();
+            </script>
+
+        </header> 
+    </head>
+    <body>        
+        <div id = 'card'>
+        {% if user %}
+        <div class = "user">
+            <img id = "profile_pic" src="{{user.picture}}"></img>
+            <h4 id = "name">{{user.name}}</h4>
+        </div class = "user">
+        {% else %}
+        <p>Log in to modify the catalog</p>
+        {% endif %}
+        <h2>Website Categories</h2>
+        <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
+        <script>
+        function change (){
+            if ({{ logged }} == 1) {
+                var button;
+                button = $('.button');
+                button.attr('href', "{{url_for('gdisconnect')}}");
+                button.html("log me out");
+                }
+        }
+        change();
+        </script>
+            <ul>
+                {% for webCategory in webCategories %}
+                <li class = "category">
+                    <a id = "catLink" href = "{{url_for('showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
+                    <a id = "catLink" href = "{{url_for('editCategory', webCategory_id = webCategory.id)}}">Edit</a>
+                    <a id = "catLink" href = "{{url_for('deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
+                </li>  
+                {% endfor %}
+            </ul>    
+            <a class = "newLink" href = "{{url_for('newCategory')}}">Add a new Category</a>
+        </div id = 'card'>
+        <div id = 'webContainer'>
+            <h1> Edit Page </h1>
+            <div>
+
+                <form action="{{ url_for('editWebPage', webCategory_id = webCategory_id, page_id = page_id)}}" method = 'post'>
+
+                <dl>
+	            <dt>Name:</dt>
+		            <dd><input type ='text' size='30' name='name' placeholder = '{{page.name }}'></dd>
+                <dt>Link:</dt>
+                    <dd><input type = 'text' size='50' name='link' placeholder = '{{page.link}}'></dd>
+	            <dt>Description:</dt>
+                    <dd><textarea name = 'description' rows='5' cols='40' placeholder = '{{page.description}}'> </textarea></dd>
+	            <dt>paste a link to an image here:</dt>
+                    <dd><input type = 'text' size = '50' name='image' placeholder = '{{page.image}}'></dd>
+                </dl>
+
+
+                <input type='submit' value='Edit'>
+
+                <a href = '{{url_for('showPages', webCategory_id = webCategory_id)}}'> Cancel </a>
+                </form>
+            </div>
+        </div id = 'webContainer'>
+	</body>
+</html>
