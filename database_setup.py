@@ -25,18 +25,19 @@ class WebCategory(Base):
 
     @property
     def serialize(self):
-        #Returns objects data in easably serializeable format
+        # Returns objects data in easably serializeable format
         return {
-            'name' : self.name,
-            'id' : self.id,
+            'name': self.name,
+            'id': self.id,
             }
+
 
 class WebPage(Base):
     __tablename__ = 'webPage'
 
-    name = Column(String(80), nullable = False)
-    id = Column(Integer, primary_key = True)
-    link = Column(String(80), nullable = False)
+    name = Column(String(80), nullable=False)
+    id = Column(Integer, primary_key=True)
+    link = Column(String(80), nullable=False)
     description = Column(String(250))
     image = Column(String(250))
     category_id = Column(Integer, ForeignKey('webCategory.id'))
@@ -45,12 +46,12 @@ class WebPage(Base):
     @property
     def serialize(self):
         return {
-            'name' : self.name,
-            'id' : self.id,
-            'link' : self.link,
-            'description' : self.description,
-            'image' : self.image,
-            'category_id' : self.category_id,
+            'name': self.name,
+            'id': self.id,
+            'link': self.link,
+            'description': self.description,
+            'image': self.image,
+            'category_id': self.category_id,
         }
 
 

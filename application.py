@@ -1,8 +1,15 @@
-from flask import Flask, render_template, request, redirect, url_for, flash, \
-    jsonify, make_response, session as login_session
+from flask import (Flask,
+                   render_template,
+                   request,
+                   redirect,
+                   url_for,
+                   flash,
+                   jsonify,
+                   make_response,
+                   session as login_session)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, User, WebCategory, WebPage
+from database_setup import Base, WebCategory, WebPage
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -10,6 +17,7 @@ import json
 import requests
 import random
 import string
+from user_dao import User, createUser, getUserID, getUserInfo
 
 app = Flask(__name__)
 CLIENT_ID = json.loads(
@@ -127,30 +135,6 @@ def gconnect():
         webkit-border-radius: 150px;-moz-border-radius: 150px;"> '
     flash("you are now logged in as %s" % login_session['username'])
     return output
-
-# User Helper Functions
-
-
-def createUser(login_session):
-    newUser = User(name=login_session['username'], email=login_session[
-                   'email'], picture=login_session['picture'])
-    session.add(newUser)
-    session.commit()
-    user = session.query(User).filter_by(email=login_session['email']).one()
-    return user.id
-
-
-def getUserInfo(user_id):
-    user = session.query(User).filter_by(id=user_id).one()
-    return user
-
-
-def getUserID(email):
-    try:
-        user = session.query(User).filter_by(email=email).one()
-        return user.id
-    except:
-        return None
 
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
