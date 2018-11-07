@@ -4,20 +4,11 @@
 	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
     <header>
             <h1>WEBSITE CATALOG</h1>
-
+            {% if user %}
+            <a href ="{{url_for('gdisconnect')}}" class = "button">log out</a>
+            {% else %}
             <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
-            <script>
-        function change (){
-            if ({{ logged }} == 1) {
-                var button;
-                button = $('.button');
-                button.attr('href', "{{url_for('gdisconnect')}}");
-                button.html("log me out");
-                }
-        }
-        change();
-            </script>
-
+            {% endif %}
         </header>
     </head>
     <body>
@@ -32,17 +23,6 @@
         {% endif %}
         <h2>Website Categories</h2>
         <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
-        <script>
-        function change (){
-            if ({{ logged }} == 1) {
-                var button;
-                button = $('.button');
-                button.attr('href', "{{url_for('gdisconnect')}}");
-                button.html("log me out");
-                }
-        }
-        change();
-        </script>
             <ul>
                 {% for webCategory in webCategories %}
                 <li class = "category">

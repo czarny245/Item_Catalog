@@ -1,26 +1,17 @@
 <html>
-    <head>	
+    <head>
     <script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
 	<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
     <header>
             <h1>WEBSITE CATALOG</h1>
-
+            {% if user %}
+            <a href ="{{url_for('gdisconnect')}}" class = "button">log out</a>
+            {% else %}
             <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
-            <script>
-        function change (){
-            if ({{ logged }} == 1) {
-                var button;
-                button = $('.button');
-                button.attr('href', "{{url_for('gdisconnect')}}");
-                button.html("log me out");
-                }
-        }
-        change();
-            </script>
-
-        </header> 
+            {% endif %}
+        </header>
     </head>
-    <body>        
+    <body>
         <div id = 'card'>
         {% if user %}
         <div class = "user">
@@ -31,27 +22,15 @@
         <p>Log in to modify the catalog</p>
         {% endif %}
         <h2>Website Categories</h2>
-        <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
-        <script>
-        function change (){
-            if ({{ logged }} == 1) {
-                var button;
-                button = $('.button');
-                button.attr('href', "{{url_for('gdisconnect')}}");
-                button.html("log me out");
-                }
-        }
-        change();
-        </script>
             <ul>
                 {% for webCategory in webCategories %}
                 <li class = "category">
                     <a id = "catLink" href = "{{url_for('showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
                     <a id = "catLink" href = "{{url_for('editCategory', webCategory_id = webCategory.id)}}">Edit</a>
                     <a id = "catLink" href = "{{url_for('deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
-                </li>  
+                </li>
                 {% endfor %}
-            </ul>    
+            </ul>
             <a class = "newLink" href = "{{url_for('newCategory')}}">Add a new Category</a>
         </div id = 'card'>
         <div id = 'webContainer'>
@@ -61,7 +40,7 @@
                 <p>Do you really want to delete {{webCategory.name}} ?:</p>
                 <input type = 'submit' value='Delete'>
             </form>
-        </div> 
+        </div>
         </div id = 'webContainer'>
 	</body>
 </html>

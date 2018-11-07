@@ -1,15 +1,8 @@
-from flask import (Flask,
-                   render_template,
-                   request,
-                   redirect,
-                   url_for,
-                   flash,
-                   jsonify,
-                   make_response,
-                   session as login_session)
+from flask import Flask, render_template, request, redirect, url_for, flash, \
+    jsonify, make_response, session as login_session
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, WebCategory, WebPage
+from database_setup import Base, User, WebCategory, WebPage
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -17,8 +10,6 @@ import json
 import requests
 import random
 import string
-from functools import wraps
-from user_dao import User, createUser, getUserID, getUserInfo
 
 app = Flask(__name__)
 CLIENT_ID = json.loads(
@@ -41,7 +32,6 @@ def showLogin():
             string.ascii_uppercase + string.digits) for x in range(32))
     login_session['state'] = state
     return render_template('login.html', STATE=state)
-
 
 # google login api
 @app.route('/gconnect', methods=['POST'])
@@ -137,6 +127,29 @@ def gconnect():
     flash("you are now logged in as %s" % login_session['username'])
     return output
 
+# User Helper Functions
+
+
+def createUser(login_session):
+    newUser = User(name=login_session['username'], email=login_session[
+                   'email'], picture=login_session['picture'])
+    session.add(newUser)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def getUserInfo(user_id):
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def getUserID(email):
+    try:
+        user = session.query(User).filter_by(email=email).one()
+        return user.id
+    except:
+        return None
 
 # DISCONNECT - Revoke a current user's token and reset their login_session
 @app.route('/gdisconnect')
@@ -169,52 +182,48 @@ def gdisconnect():
         response.headers['Content-Type'] = 'application/json'
         return response
 
-
 # endpoints
 @app.route('/')
 @app.route('/index')
 def getAllWebCategories():
+    loggedIn = 1
+    if 'username' not in login_session:
+        loggedIn = 0
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else:
         user = None
     return render_template(
-        'index.html', webCategories=webCategories,
-        user=user)
+        'index.html', webCategories = webCategories, logged = loggedIn,
+    user = user)
 
-
-@app.route('/newCategory', methods=['POST', 'GET'])
+@app.route('/newCategory', methods = ['POST', 'GET'])
 def newCategory():
-    webCategories = session.query(WebCategory).all()
-    if 'username' in login_session:
-        user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
-    else:
-            user = None
     if 'username' not in login_session:
         return render_template('noAccess.html')
     if request.method == 'POST':
-        newCat = WebCategory(name=request.form['name'])
+        newCat = WebCategory(name = request.form['name'])
         session.add(newCat)
         session.commit()
         return redirect(url_for('getAllWebCategories'))
         flash("New category added!")
     else:
-        return render_template('newWebCategory.html',
-                               user=user, webCategories=webCategories)
+        return render_template('newWebCategory.html',)
 
-
-@app.route('/showPages/<int:webCategory_id>/edit', methods=['GET', 'POST'])
+@app.route('/showPages/<int:webCategory_id>/edit', methods = ['GET', 'POST'])
 def editCategory(webCategory_id):
+    loggedIn = 1
+    if 'username' not in login_session:
+        loggedIn = 0
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else:
         user = None
-    editedCat = session.query(WebCategory).filter_by(id=webCategory_id).one()
+    editedCat = session.query(WebCategory).filter_by(id = webCategory_id).one()
     if 'username' not in login_session:
         return render_template('noAccess.html')
     if request.method == 'POST':
@@ -224,21 +233,22 @@ def editCategory(webCategory_id):
         flash("You have succesfully edited this category")
         return redirect(url_for('getAllWebCategories'))
     else:
-        return render_template('editWebCategory.html',
-                               webCategory=editedCat,
-                               user=user,
-                               webCategories=webCategories)
+        return render_template('editWebCategory.html', webCategory = editedCat,
+                               user = user, logged = loggedIn,
+                               webCategories = webCategories)
 
-
-@app.route('/showPages/<int:webCategory_id>/delete', methods=['GET', 'POST'])
+@app.route('/showPages/<int:webCategory_id>/delete', methods = ['GET','POST'])
 def deleteCategory(webCategory_id):
+    loggedIn = 1
+    if 'username' not in login_session:
+        loggedIn = 0
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else:
         user = None
-    catToDel = session.query(WebCategory).filter_by(id=webCategory_id).one()
+    catToDel = session.query(WebCategory).filter_by(id = webCategory_id).one()
     webCategories = session.query(WebCategory).all()
     if 'username' not in login_session:
         return render_template('noAccess.html')
@@ -250,90 +260,88 @@ def deleteCategory(webCategory_id):
             url_for('getAllWebCategories'))
     else:
         return render_template(
-            'deleteWebCategory.html', webCategory=catToDel,
-            webCategories=webCategories, user=user)
-
+            'deleteWebCategory.html', webCategory = catToDel,
+            webCategories = webCategories, logged = loggedIn, user = user)
 
 @app.route('/showPages/<int:webCategory_id>')
 def showPages(webCategory_id):
+    loggedIn = 1
+    if 'username' not in login_session:
+        loggedIn = 0
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else:
         user = None
     webCategories = session.query(WebCategory).all()
     webCategory = session.query(WebCategory).filter_by(
-        id=webCategory_id).one()
+        id = webCategory_id).one()
     getAllPages = session.query(
-        WebPage).filter_by(category_id=webCategory.id)
+        WebPage).filter_by(category_id = webCategory.id)
     return render_template(
         'showPages.html',
-        webCategories=webCategories,
-        webCategory=webCategory,
-        getAllPages=getAllPages,
-        user=user)
-
+        webCategories = webCategories,
+        webCategory = webCategory,
+        getAllPages = getAllPages,
+        logged = loggedIn,
+        user = user)
 
 @app.route('/showPages/<int:webCategory_id>/showDetails/<int:page_id>')
 def showPageDetails(webCategory_id, page_id):
+    loggedIn = 1
+    if 'username' not in login_session:
+        loggedIn = 0
     webCategories = session.query(WebCategory).all()
     webCategory = session.query(
-        WebCategory).filter_by(id=webCategory_id).one()
+        WebCategory).filter_by(id = webCategory_id).one()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else:
         user = None
-    page = session.query(WebPage).filter_by(id=page_id).one()
-    return render_template('pageDetails.html',
-                           page=page, user=user,
-                           webCategory=webCategory,
-                           webCategories=webCategories)
+    page = session.query(WebPage).filter_by(id = page_id).one()
+    return render_template('pageDetails.html', page = page, user = user,
+                           logged = loggedIn, webCategory = webCategory,
+                           webCategories = webCategories)
 
-
-@app.route('/showPages/<int:webCategory_id>/new', methods=['GET', 'POST'])
+@app.route('/showPages/<int:webCategory_id>/new', methods = ['GET', 'POST'])
 def addNewPage(webCategory_id):
-    webCategories = session.query(WebCategory).all()
-    if 'username' in login_session:
-        user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
-    else:
-        user = None
     if 'username' not in login_session:
         return render_template('noAccess.html')
     webCategory = session.query(
-        WebCategory).filter_by(id=webCategory_id).one()
+        WebCategory).filter_by(id = webCategory_id).one()
     if request.method == 'POST':
         newPage = WebPage(
-            name=request.form['name'],
-            description=request.form['description'],
-            link=request.form['link'],
-            image=request.form['image'],
-            category_id=webCategory.id)
+            name = request.form['name'],
+            description = request.form['description'],
+            link = request.form['link'],
+            image = request.form['image'],
+            category_id = webCategory_id)
         session.add(newPage)
         session.commit()
         return redirect(url_for(
-            'showPages', webCategory_id=webCategory_id))
+            'showPages', webCategory_id = webCategory_id))
         flash("New link added")
     else:
         return render_template(
-            'newWebPage.html', webCategory_id=webCategory_id, user=user,
-             webCategories=webCategories)
-
+            'newWebPage.html', webCategory_id = webCategory_id)
 
 @app.route('/showPages/<int:webCategory_id>/editWebPage/<int:page_id>',
-           methods=['GET', 'POST'])
+           methods = ['GET', 'POST'])
 def editWebPage(webCategory_id, page_id):
+    loggedIn = 1
+    if 'username' not in login_session:
+        loggedIn = 0
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else:
         user = None
     if 'username' not in login_session:
         return render_template('noAccess.html')
-    editedPage = session.query(WebPage).filter_by(id=page_id).one()
+    editedPage = session.query(WebPage).filter_by(id = page_id).one()
     if request.method == 'POST':
         if request.form['name']:
             editedPage.name = request.form['name']
@@ -345,60 +353,62 @@ def editWebPage(webCategory_id, page_id):
             editedPage.image = request.form['image']
         session.add(editedPage)
         session.commit()
-        return redirect(url_for('showPages', webCategory_id=webCategory_id))
+        return redirect(url_for('showPages', webCategory_id = webCategory_id))
         flash("Web site changed")
     else:
         return render_template(
             'editWebPage.html',
-            webCategory_id=webCategory_id,
-            page_id=page_id,
-            page=editedPage,
-            user=user,
-            webCategories=webCategories)
-
+            webCategory_id = webCategory_id,
+            page_id = page_id,
+            page = editedPage,
+            user = user,
+            logged = loggedIn,
+            webCategories = webCategories)
 
 @app.route('/showPages/<int:webCategory_id>/deleteWebPage/<int:page_id>',
-           methods=['GET', 'POST'])
+           methods = ['GET', 'POST'])
 def deleteWebPage(webCategory_id, page_id):
+    loggedIn = 1
+    if 'username' not in login_session:
+        loggedIn = 0
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = session.query(User).filter_by(id = user_id).one()
     else:
         user = None
     webCategories = session.query(WebCategory).all()
     if 'username' not in login_session:
         return render_template('noAccess.html')
-    pageToDel = session.query(WebPage).filter_by(id=page_id).one()
+    pageToDel = session.query(WebPage).filter_by(id = page_id).one()
     if request.method == 'POST':
         session.delete(pageToDel)
         session.commit()
-        return redirect(url_for('showPages', webCategory_id=webCategory_id))
+        return redirect(url_for('showPages', webCategory_id = webCategory_id))
         flash("link has been removed")
     else:
         return render_template(
             'deleteWebPage.html',
-            webCategories=webCategories,
-            webCategory_id=webCategory_id,
-            page_id=page_id,
-            page=pageToDel,
-            user=user,)
-
+            webCategories = webCategories,
+            webCategory_id = webCategory_id,
+            page_id = page_id,
+            page = pageToDel,
+            user = user,
+            logged = loggedIn)
 
 # JSON endpoints
 @app.route('/showPages/<int:webCategory_id>/JSON')
 def showPagesJSON(webCategory_id):
     webCategory = session.query(
-        WebCategory).filter_by(id=webCategory_id).one()
+        WebCategory).filter_by(id = webCategory_id).one()
     pages = session.query(
-        WebPage).filter_by(category_id=webCategory.id).all()
+        WebPage).filter_by(category_id = webCategory.id).all()
     return jsonify(WebPages=[page.serialize for page in pages])
-
 
 @app.route('/showPages/<int:webCategory_id>/showDetails/<int:page_id>/JSON')
 def pageDetailsJSON(webCategory_id, page_id):
-    page = session.query(WebPage).filter_by(id=page_id).one()
-    return jsonify(WebPage=page.serialize)
+    page = session.query(WebPage).filter_by(id = page_id).one()
+    return jsonify(WebPage = page.serialize)
 
 
 if __name__ == '__main__':
