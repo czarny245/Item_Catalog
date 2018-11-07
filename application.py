@@ -219,7 +219,7 @@ def editCategory(webCategory_id):
         user = None
         return render_template('noAccess.html')
     editedCat = session.query(WebCategory).filter_by(id=webCategory_id).one()
-    creator = getUserInfo(editedCat.creator_id).one()
+    creator = getUserInfo(editedCat.creator_id)
     if login_session['user_id'] != creator.id:
         flash("You can only modify your own category")
         return redirect(url_for('getAllWebCategories'))
@@ -247,7 +247,7 @@ def deleteCategory(webCategory_id):
         return render_template('noAccess.html')
     catToDel = session.query(WebCategory).filter_by(id=webCategory_id).one()
     webCategories = session.query(WebCategory).all()
-    creator = getUserInfo(catToDel.creator_id).one()
+    creator = getUserInfo(catToDel.creator_id)
     if login_session['user_id'] != creator.id:
         flash("You can only modify your own category")
         return redirect(url_for('getAllWebCategories'))
@@ -314,7 +314,7 @@ def addNewPage(webCategory_id):
         return render_template('noAccess.html')
     webCategory = session.query(
         WebCategory).filter_by(id=webCategory_id).one()
-    creator = getUserInfo(webCategory.creator_id).one()
+    creator = getUserInfo(webCategory.creator_id)
     if login_session['user_id'] != creator.id:
         flash("You can only modify your own category")
         return redirect(url_for('getAllWebCategories'))
@@ -350,7 +350,7 @@ def editWebPage(webCategory_id, page_id):
         user = None
         return render_template('noAccess.html')
     editedPage = session.query(WebPage).filter_by(id=page_id).one()
-    creator = getUserInfo(webCategory.creator_id).one()
+    creator = getUserInfo(webCategory.creator_id)
     if login_session['user_id'] != creator.id:
         flash("You can only modify your own category")
         return redirect(url_for('getAllWebCategories'))
@@ -389,7 +389,7 @@ def deleteWebPage(webCategory_id, page_id):
         user = None
         return render_template('noAccess.html')
     pageToDel = session.query(WebPage).filter_by(id=page_id).one()
-    creator = getUserInfo(webCategory.creator_id).one()
+    creator = getUserInfo(webCategory.creator_id)
     if login_session['user_id'] != creator.id:
         flash("You can only modify your own category")
         return redirect(url_for('getAllWebCategories'))
