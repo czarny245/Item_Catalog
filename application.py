@@ -9,7 +9,7 @@ from flask import (Flask,
                    session as login_session)
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-from database_setup import Base, WebCategory, WebPage
+from database_setup import Base, WebCategory, WebPage, User
 from oauth2client.client import flow_from_clientsecrets
 from oauth2client.client import FlowExchangeError
 import httplib2
@@ -18,7 +18,7 @@ import requests
 import random
 import string
 from functools import wraps
-from user_dao import User, createUser, getUserID, getUserInfo
+from user_dao import createUser, getUserID, getUserInfo
 
 app = Flask(__name__)
 CLIENT_ID = json.loads(
@@ -190,13 +190,13 @@ def newCategory():
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
-            user = None
-    if 'username' not in login_session:
+        user = None
         return render_template('noAccess.html')
     if request.method == 'POST':
-        newCat = WebCategory(name=request.form['name'])
+        newCat = WebCategory(name=request.form['name'],
+                             creator_id=user_id)
         session.add(newCat)
         session.commit()
         return redirect(url_for('getAllWebCategories'))

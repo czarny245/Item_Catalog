@@ -1,6 +1,7 @@
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
+from database_setup import User
+from sqlalchemy import create_engine
 
 Base = declarative_base()
 
@@ -8,15 +9,6 @@ engine = create_engine('sqlite:///webPages.db')
 Base.metadata.bind = engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
-
-
-class User(Base):
-    __tablename__ = 'user'
-
-    id = Column(Integer, primary_key=True)
-    name = Column(String(250), nullable=False)
-    email = Column(String(250), nullable=False)
-    picture = Column(String(250))
 
 
 # User Helper Functions
