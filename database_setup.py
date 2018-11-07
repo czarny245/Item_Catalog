@@ -6,6 +6,7 @@ from sqlalchemy import create_engine
 Base = declarative_base()
 
 
+# Stores the information about the user
 class User(Base):
     __tablename__ = 'user'
 
@@ -15,6 +16,7 @@ class User(Base):
     picture = Column(String(250))
 
 
+# Stores the information about a Category
 class WebCategory(Base):
     __tablename__ = 'webCategory'
 
@@ -22,6 +24,7 @@ class WebCategory(Base):
     id = Column(Integer, primary_key=True)
     creator_id = Column(Integer, ForeignKey('user.id'))
     creator = relationship(User)
+    items = relationship("WebPage", cascade="all, delete-orphan")
 
     @property
     def serialize(self):
@@ -31,7 +34,7 @@ class WebCategory(Base):
             'id': self.id,
             }
 
-
+# Stores the information about an item
 class WebPage(Base):
     __tablename__ = 'webPage'
 
