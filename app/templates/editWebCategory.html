@@ -5,9 +5,9 @@
     <header>
             <h1>WEBSITE CATALOG</h1>
             {% if user %}
-            <a href ="{{url_for('gdisconnect')}}" class = "button">log out</a>
+            <a href ="{{url_for('auth.gdisconnect')}}" class = "button">log out</a>
             {% else %}
-            <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
+            <a href ="{{url_for('auth.showLogin')}}" class = "button">log in</a>
             {% endif %}
         </header>
     </head>
@@ -25,22 +25,22 @@
             <ul>
                 {% for webCategory in webCategories %}
                 <li class = "category">
-                    <a id = "catLink" href = "{{url_for('showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
-                    <a id = "catLink" href = "{{url_for('editCategory', webCategory_id = webCategory.id)}}">Edit</a>
-                    <a id = "catLink" href = "{{url_for('deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
+                    <a id = "catLink" href = "{{url_for('site.showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
+                    <a id = "catLink" href = "{{url_for('site.editCategory', webCategory_id = webCategory.id)}}">Edit</a>
+                    <a id = "catLink" href = "{{url_for('site.deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
                 </li>
                 {% endfor %}
             </ul>
-            <a class = "newLink" href = "{{url_for('newCategory')}}">Add a new Category</a>
+            <a class = "newLink" href = "{{url_for('site.newCategory')}}">Add a new Category</a>
         </div id = 'card'>
         <div id = 'webContainer'>
             <h1>Edit Category</h1>
             <div>
-                <form action = "{{url_for('editCategory', webCategory_id = webCategory.id)}}" method = 'post'>
+                <form action = "{{url_for('site.editCategory', webCategory_id = webCategory.id)}}" method = 'post'>
                 <p>Name:</p>
                 <input type = 'text' size='30' name='name' placeholder='{{webCategory.name}}'>
                 <input type = 'submit' value='Edit'>
-                <a href = '{{url_for('getAllWebCategories')}}'> Cancel </a>
+                <a href = "{{url_for('site.getAllWebCategories')}}"> Cancel </a>
                 </form>
             </div>
         </div id = 'webContainer'>

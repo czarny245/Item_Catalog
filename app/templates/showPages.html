@@ -5,9 +5,9 @@
     <header>
       <h1>WEBSITE CATALOG</h1>
       {% if user %}
-      <a href ="{{url_for('gdisconnect')}}" class = "button">log out</a>
+      <a href ="{{url_for('auth.gdisconnect')}}" class = "button">log out</a>
       {% else %}
-      <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
+      <a href ="{{url_for('auth.showLogin')}}" class = "button">log in</a>
       {% endif %}
         </header>
     </head>
@@ -25,13 +25,13 @@
             <ul>
                 {% for webCategory in webCategories %}
                 <li class = "category">
-                    <a id = "catLink" href = "{{url_for('showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
-                    <a id = "catLink" href = "{{url_for('editCategory', webCategory_id = webCategory.id)}}">Edit</a>
-                    <a id = "catLink" href = "{{url_for('deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
+                    <a id = "catLink" href = "{{url_for('site.showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
+                    <a id = "catLink" href = "{{url_for('site.editCategory', webCategory_id = webCategory.id)}}">Edit</a>
+                    <a id = "catLink" href = "{{url_for('site.deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
                 </li>
                 {% endfor %}
             </ul>
-            <a class = "newLink" href = "{{url_for('newCategory')}}">Add a new Category</a>
+            <a class = "newLink" href = "{{url_for('site.newCategory')}}">Add a new Category</a>
         </div id = 'card'>
         <div id = 'webContainer'>
                                 <div class = 'flash'>
@@ -45,19 +45,19 @@
                 </ul>
                 {% endif %}
                 {% endwith %}
-                </div>  
+                </div>
             <ul>
                 {% for page in getAllPages %}
                 <li id = "page">
-                    <a id = "pagelinkMain" href = "{{url_for('showPageDetails', page_id = page.id, webCategory_id = webCategory.id)}}"><h3>{{page.name}}<h3></a>
-                    <a id = "pagelink" href = "{{url_for('editWebPage', page_id = page.id, webCategory_id = webCategory.id)}}">Edit</a>
-                    <a id = "pagelink" href = "{{url_for('deleteWebPage', page_id = page.id, webCategory_id = webCategory.id)}}">Delete</a>
+                    <a id = "pagelinkMain" href = "{{url_for('site.showPageDetails', page_id = page.id, webCategory_id = webCategory.id)}}"><h3>{{page.name}}<h3></a>
+                    <a id = "pagelink" href = "{{url_for('site.editWebPage', page_id = page.id, webCategory_id = webCategory.id)}}">Edit</a>
+                    <a id = "pagelink" href = "{{url_for('site.deleteWebPage', page_id = page.id, webCategory_id = webCategory.id)}}">Delete</a>
                 </li>
                 {% endfor %}
             </ul>
             <h4>WebCategory created by: {{creator.name}}<h4>
 
-    	    <a class = "newLink" href = '{{url_for('addNewPage', webCategory_id = webCategory.id) }}'>Create New Item</a>
+    	    <a class = "newLink" href = "{{url_for('site.addNewPage', webCategory_id = webCategory.id) }}">Create New Item</a>
         </div id = 'webContainer'>
 	</body>
 </html>

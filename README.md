@@ -22,5 +22,7 @@ machine.
 Open the browser and paste the following address: `<http://localhost:5000/>`
 
 ### JSON endpoints
-JSON endpoints are provided for accessing a single category with its items
-or a particular item itself.
+JSON endpoints are provided for accessing a single category with its items:
+`/showPages/<int:webCategory_id>/JSON`
+or a particular item itself:
+`/showPages/<int:webCategory_id>/showDetails/<int:page_id>/JSON`

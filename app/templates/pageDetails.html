@@ -5,9 +5,9 @@
     <header>
             <h1>WEBSITE CATALOG</h1>
             {% if user %}
-            <a href ="{{url_for('gdisconnect')}}" class = "button">log out</a>
+            <a href ="{{url_for('auth.gdisconnect')}}" class = "button">log out</a>
             {% else %}
-            <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
+            <a href ="{{url_for('auth.showLogin')}}" class = "button">log in</a>
             {% endif %}
         </header>
     </head>
@@ -22,27 +22,23 @@
         <p>Log in to modify the catalog</p>
         {% endif %}
         <h2>Website Categories</h2>
-        <a href ="{{url_for('showLogin')}}" class = "button">log in</a>
             <ul>
                 {% for webCategory in webCategories %}
                 <li class = "category">
-                    <a id = "catLink" href = "{{url_for('showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
-                    <a id = "catLink" href = "{{url_for('editCategory', webCategory_id = webCategory.id)}}">Edit</a>
-                    <a id = "catLink" href = "{{url_for('deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
+                    <a id = "catLink" href = "{{url_for('site.showPages', webCategory_id = webCategory.id)}}"><h3>{{webCategory.name}}</h3></a>
+                    <a id = "catLink" href = "{{url_for('site.editCategory', webCategory_id = webCategory.id)}}">Edit</a>
+                    <a id = "catLink" href = "{{url_for('site.deleteCategory', webCategory_id = webCategory.id)}}">Delete</a>
                 </li>
                 {% endfor %}
             </ul>
-            <a class = "newLink" href = "{{url_for('newCategory')}}">Add a new Category</a>
+            <a class = "newLink" href = "{{url_for('site.newCategory')}}">Add a new Category</a>
         </div id = 'card'>
         <div id = 'webContainer'>
-          <h1>New Category</h1>
-          <div>
-          <form action = "{{url_for('newCategory')}}" method = 'post'>
-              <p>Name:</p>
-              <input type = 'text' size='30' name='name'>
-              <input type = 'submit' value='Create'>
-          </form>
-          </div>
+            <h2>{{page.name}}</h2>
+            <a href= "{{page.link}}"><h3>{{page.link}}</h3></a>
+            <p>{{page.description}}</p>
+            <img src="{{page.image}}" alt="img placeholder"></img>
+    	    <a class = "newLink" href = "{{url_for('site.addNewPage', webCategory_id = webCategory.id) }}">Create New Item</a>
         </div id = 'webContainer'>
 	</body>
 </html>
