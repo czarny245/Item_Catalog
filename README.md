@@ -17,7 +17,7 @@ machine.
 * `vagrant up`
 * `vagrant ssh`
 * `cd /vagrant/catalog`
-* `python application.py`
+* `python run.py`
 
 Open the browser and paste the following address: `<http://localhost:5000/>`
 
