@@ -26,3 +26,5 @@ JSON endpoints are provided for accessing a single category with its items:
 `/showPages/<int:webCategory_id>/JSON`
 or a particular item itself:
 `/showPages/<int:webCategory_id>/showDetails/<int:page_id>/JSON`
+
+where <int: xxx> will be th id number of currently viewed category or item in the application
