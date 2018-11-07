@@ -17,7 +17,6 @@ import json
 import requests
 import random
 import string
-from functools import wraps
 from user_dao import createUser, getUserID, getUserInfo
 
 app = Flask(__name__)
@@ -115,6 +114,7 @@ def gconnect():
     answer = requests.get(userinfo_url, params=params)
 
     data = answer.json()
+    print data
 
     login_session['username'] = data['name']
     login_session['picture'] = data['picture']
@@ -199,8 +199,7 @@ def newCategory():
             flash("You cannot create a category without a name!")
             return redirect(url_for('getAllWebCategories'))
         else:
-            newCat = WebCategory(name=request.form['name'],
-                                    creator_id=user_id)
+            newCat = WebCategory(name=request.form['name'], creator_id=user_id)
             session.add(newCat)
             session.commit()
             flash("New category added!")
@@ -220,6 +219,10 @@ def editCategory(webCategory_id):
         user = None
         return render_template('noAccess.html')
     editedCat = session.query(WebCategory).filter_by(id=webCategory_id).one()
+    creator = getUserInfo(editedCat.creator_id).one()
+    if login_session['user_id'] != creator.id:
+        flash("You can only modify your own category")
+        return redirect(url_for('getAllWebCategories'))
     if request.method == 'POST':
         editedCat.name = request.form['name']
         session.add(editedCat)
@@ -244,6 +247,10 @@ def deleteCategory(webCategory_id):
         return render_template('noAccess.html')
     catToDel = session.query(WebCategory).filter_by(id=webCategory_id).one()
     webCategories = session.query(WebCategory).all()
+    creator = getUserInfo(catToDel.creator_id).one()
+    if login_session['user_id'] != creator.id:
+        flash("You can only modify your own category")
+        return redirect(url_for('getAllWebCategories'))
     if request.method == 'POST':
         session.delete(catToDel)
         session.commit()
@@ -307,6 +314,10 @@ def addNewPage(webCategory_id):
         return render_template('noAccess.html')
     webCategory = session.query(
         WebCategory).filter_by(id=webCategory_id).one()
+    creator = getUserInfo(webCategory.creator_id).one()
+    if login_session['user_id'] != creator.id:
+        flash("You can only modify your own category")
+        return redirect(url_for('getAllWebCategories'))
     if request.method == 'POST':
         newPage = WebPage(
             name=request.form['name'],
@@ -321,14 +332,17 @@ def addNewPage(webCategory_id):
         flash("New link added")
     else:
         return render_template(
-            'newWebPage.html', webCategory_id=webCategory_id, user=user,
-             webCategories=webCategories)
+            'newWebPage.html',
+            webCategory_id=webCategory_id,
+            user=user,
+            webCategories=webCategories)
 
 
 @app.route('/showPages/<int:webCategory_id>/editWebPage/<int:page_id>',
            methods=['GET', 'POST'])
 def editWebPage(webCategory_id, page_id):
     webCategories = session.query(WebCategory).all()
+    webCategory = session.query(WebCategory).filter_by(id=webCategory_id).one()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
         user = getUserInfo(user_id)
@@ -336,6 +350,10 @@ def editWebPage(webCategory_id, page_id):
         user = None
         return render_template('noAccess.html')
     editedPage = session.query(WebPage).filter_by(id=page_id).one()
+    creator = getUserInfo(webCategory.creator_id).one()
+    if login_session['user_id'] != creator.id:
+        flash("You can only modify your own category")
+        return redirect(url_for('getAllWebCategories'))
     if request.method == 'POST':
         if request.form['name']:
             editedPage.name = request.form['name']
@@ -363,14 +381,18 @@ def editWebPage(webCategory_id, page_id):
            methods=['GET', 'POST'])
 def deleteWebPage(webCategory_id, page_id):
     webCategories = session.query(WebCategory).all()
+    webCategory = session.query(WebCategory).filter_by(id=webCategory_id).one()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
         user = getUserInfo(user_id)
     else:
         user = None
         return render_template('noAccess.html')
-    webCategories = session.query(WebCategory).all()
     pageToDel = session.query(WebPage).filter_by(id=page_id).one()
+    creator = getUserInfo(webCategory.creator_id).one()
+    if login_session['user_id'] != creator.id:
+        flash("You can only modify your own category")
+        return redirect(url_for('getAllWebCategories'))
     if request.method == 'POST':
         session.delete(pageToDel)
         session.commit()
