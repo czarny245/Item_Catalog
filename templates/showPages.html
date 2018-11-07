@@ -45,7 +45,7 @@
                 </ul>
                 {% endif %}
                 {% endwith %}
-                </div>
+                </div>  
             <ul>
                 {% for page in getAllPages %}
                 <li id = "page">
@@ -55,6 +55,7 @@
                 </li>
                 {% endfor %}
             </ul>
+            <h4>WebCategory created by: {{creator.name}}<h4>
 
     	    <a class = "newLink" href = '{{url_for('addNewPage', webCategory_id = webCategory.id) }}'>Create New Item</a>
         </div id = 'webContainer'>

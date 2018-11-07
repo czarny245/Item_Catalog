@@ -177,7 +177,7 @@ def getAllWebCategories():
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
     return render_template(
@@ -195,12 +195,16 @@ def newCategory():
         user = None
         return render_template('noAccess.html')
     if request.method == 'POST':
-        newCat = WebCategory(name=request.form['name'],
-                             creator_id=user_id)
-        session.add(newCat)
-        session.commit()
-        return redirect(url_for('getAllWebCategories'))
-        flash("New category added!")
+        if request.form['name'] == "":
+            flash("You cannot create a category without a name!")
+            return redirect(url_for('getAllWebCategories'))
+        else:
+            newCat = WebCategory(name=request.form['name'],
+                                    creator_id=user_id)
+            session.add(newCat)
+            session.commit()
+            flash("New category added!")
+            return redirect(url_for('getAllWebCategories'))
     else:
         return render_template('newWebCategory.html',
                                user=user, webCategories=webCategories)
@@ -211,12 +215,11 @@ def editCategory(webCategory_id):
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
-    editedCat = session.query(WebCategory).filter_by(id=webCategory_id).one()
-    if 'username' not in login_session:
         return render_template('noAccess.html')
+    editedCat = session.query(WebCategory).filter_by(id=webCategory_id).one()
     if request.method == 'POST':
         editedCat.name = request.form['name']
         session.add(editedCat)
@@ -235,13 +238,12 @@ def deleteCategory(webCategory_id):
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
+        return render_template('noAccess.html')
     catToDel = session.query(WebCategory).filter_by(id=webCategory_id).one()
     webCategories = session.query(WebCategory).all()
-    if 'username' not in login_session:
-        return render_template('noAccess.html')
     if request.method == 'POST':
         session.delete(catToDel)
         session.commit()
@@ -259,12 +261,13 @@ def showPages(webCategory_id):
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
     webCategories = session.query(WebCategory).all()
     webCategory = session.query(WebCategory).filter_by(
         id=webCategory_id).one()
+    creator = session.query(User).filter_by(id=webCategory.creator_id).one()
     getAllPages = session.query(
         WebPage).filter_by(category_id=webCategory.id)
     return render_template(
@@ -272,7 +275,8 @@ def showPages(webCategory_id):
         webCategories=webCategories,
         webCategory=webCategory,
         getAllPages=getAllPages,
-        user=user)
+        user=user,
+        creator=creator)
 
 
 @app.route('/showPages/<int:webCategory_id>/showDetails/<int:page_id>')
@@ -282,7 +286,7 @@ def showPageDetails(webCategory_id, page_id):
         WebCategory).filter_by(id=webCategory_id).one()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
     page = session.query(WebPage).filter_by(id=page_id).one()
@@ -297,10 +301,9 @@ def addNewPage(webCategory_id):
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
-    if 'username' not in login_session:
         return render_template('noAccess.html')
     webCategory = session.query(
         WebCategory).filter_by(id=webCategory_id).one()
@@ -328,10 +331,9 @@ def editWebPage(webCategory_id, page_id):
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
-    if 'username' not in login_session:
         return render_template('noAccess.html')
     editedPage = session.query(WebPage).filter_by(id=page_id).one()
     if request.method == 'POST':
@@ -363,12 +365,11 @@ def deleteWebPage(webCategory_id, page_id):
     webCategories = session.query(WebCategory).all()
     if 'username' in login_session:
         user_id = getUserID(login_session['email'])
-        user = session.query(User).filter_by(id=user_id).one()
+        user = getUserInfo(user_id)
     else:
         user = None
-    webCategories = session.query(WebCategory).all()
-    if 'username' not in login_session:
         return render_template('noAccess.html')
+    webCategories = session.query(WebCategory).all()
     pageToDel = session.query(WebPage).filter_by(id=page_id).one()
     if request.method == 'POST':
         session.delete(pageToDel)
