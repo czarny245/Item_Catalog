@@ -34,6 +34,7 @@ class WebCategory(Base):
             'id': self.id,
             }
 
+
 # Stores the information about an item
 class WebPage(Base):
     __tablename__ = 'webPage'
