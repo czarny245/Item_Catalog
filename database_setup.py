@@ -24,7 +24,10 @@ class WebCategory(Base):
     id = Column(Integer, primary_key=True)
     creator_id = Column(Integer, ForeignKey('user.id'))
     creator = relationship(User)
-    items = relationship("WebPage", cascade="all, delete-orphan")
+    # Delete cascade indicates that when a “parent” object is marked
+    # for deletion, its related “child” objects should also be marked for
+    # deletion.
+    items = relationship("WebPage", cascade="save-update, merge, delete")
 
     @property
     def serialize(self):
